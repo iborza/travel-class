@@ -1,3 +1,73 @@
+mutation {
+	addCity(input: [{
+		name: "miami"
+    lat: 25.7617
+    lng:-80.1918
+	}])
+	{
+    city {
+      id
+      name
+      lat
+      lng
+    }
+    numUids
+  }
+}
+
+mutation {
+	updateCity(input: {
+    filter: {id: ["0x3"] }
+    set: {
+      name: "miami-dade"
+    }
+  })
+	{
+    city {
+      id
+      name
+      lat
+      lng
+    }
+  }
+}
+
+mutation {
+	deleteCity(filter: {id: ["0x3"] })
+	{
+    city {
+      id
+      name
+      lat
+      lng
+    }
+    msg
+  }
+}
+
+query {
+	getCity(id: "0x2" )
+	{
+    id
+    name
+    lat
+    lng
+  }
+}
+
+query {
+	queryCity(filter: {	name: { eq: "new york" } })
+	{
+    id
+    name
+    lat
+    lng
+  }
+}
+
+// ==================================================
+
+
 directive @dgraph(
   type: String
   pred: String
