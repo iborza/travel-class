@@ -1,0 +1,220 @@
+directive @dgraph(
+  type: String
+  pred: String
+) on OBJECT | INTERFACE | FIELD_DEFINITION
+directive @custom(http: CustomHTTP, dql: String) on FIELD_DEFINITION
+directive @cascade on FIELD
+directive @hasInverse(field: String!) on FIELD_DEFINITION
+directive @withSubscription on OBJECT | INTERFACE
+directive @secret(field: String!, pred: String) on OBJECT | INTERFACE
+directive @auth(
+  query: AuthRule
+  add: AuthRule
+  update: AuthRule
+  delete: AuthRule
+) on OBJECT
+directive @remote on OBJECT | INTERFACE
+directive @search(by: [DgraphIndex!]) on FIELD_DEFINITION
+directive @id on FIELD_DEFINITION
+input AddCityInput {
+  name: String!
+  lat: Float!
+  lng: Float!
+}
+
+type AddCityPayload {
+  city(filter: CityFilter, order: CityOrder, first: Int, offset: Int): [City]
+  numUids: Int
+}
+
+input AuthRule {
+  and: [AuthRule]
+  or: [AuthRule]
+  not: AuthRule
+  rule: String
+}
+
+type City {
+  id: ID!
+  name: String!
+  lat: Float!
+  lng: Float!
+}
+
+input CityFilter {
+  id: [ID!]
+  name: StringExactFilter
+  has: CityHasFilter
+  and: CityFilter
+  or: CityFilter
+  not: CityFilter
+}
+
+enum CityHasFilter {
+  name
+  lat
+  lng
+}
+
+input CityOrder {
+  asc: CityOrderable
+  desc: CityOrderable
+  then: CityOrder
+}
+
+enum CityOrderable {
+  name
+  lat
+  lng
+}
+
+input CityPatch {
+  name: String
+  lat: Float
+  lng: Float
+}
+
+input CityRef {
+  id: ID
+  name: String
+  lat: Float
+  lng: Float
+}
+
+input CustomHTTP {
+  url: String!
+  method: HTTPMethod!
+  body: String
+  graphql: String
+  mode: Mode
+  forwardHeaders: [String!]
+  secretHeaders: [String!]
+  introspectionHeaders: [String!]
+  skipIntrospection: Boolean
+}
+
+scalar DateTime
+
+input DateTimeFilter {
+  eq: DateTime
+  le: DateTime
+  lt: DateTime
+  ge: DateTime
+  gt: DateTime
+}
+
+type DeleteCityPayload {
+  city(filter: CityFilter, order: CityOrder, first: Int, offset: Int): [City]
+  msg: String
+  numUids: Int
+}
+
+enum DgraphIndex {
+  int
+  int64
+  float
+  bool
+  hash
+  exact
+  term
+  fulltext
+  trigram
+  regexp
+  year
+  month
+  day
+  hour
+}
+
+input FloatFilter {
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+}
+
+enum HTTPMethod {
+  GET
+  POST
+  PUT
+  PATCH
+  DELETE
+}
+
+scalar Int64
+
+input Int64Filter {
+  eq: Int64
+  le: Int64
+  lt: Int64
+  ge: Int64
+  gt: Int64
+}
+
+input IntFilter {
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+}
+
+enum Mode {
+  BATCH
+  SINGLE
+}
+
+type Mutation {
+  addCity(input: [AddCityInput!]!): AddCityPayload
+  updateCity(input: UpdateCityInput!): UpdateCityPayload
+  deleteCity(filter: CityFilter!): DeleteCityPayload
+}
+
+type Query {
+  getCity(id: ID!): City
+  queryCity(
+    filter: CityFilter
+    order: CityOrder
+    first: Int
+    offset: Int
+  ): [City]
+}
+
+input StringExactFilter {
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+}
+
+input StringFullTextFilter {
+  alloftext: String
+  anyoftext: String
+}
+
+input StringHashFilter {
+  eq: String
+}
+
+input StringRegExpFilter {
+  regexp: String
+}
+
+input StringTermFilter {
+  allofterms: String
+  anyofterms: String
+}
+
+input UpdateCityInput {
+  filter: CityFilter!
+  set: CityPatch
+  remove: CityPatch
+}
+
+type UpdateCityPayload {
+  city(filter: CityFilter, order: CityOrder, first: Int, offset: Int): [City]
+  numUids: Int
+}
+

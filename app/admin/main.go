@@ -6,6 +6,8 @@ import (
 	"os"
 
 	"github.com/ardanlabs/conf"
+	"github.com/dgraph-io/travel/app/admin/commands"
+	"github.com/dgraph-io/travel/business/data"
 	"github.com/pkg/errors"
 )
 
@@ -73,6 +75,22 @@ func run(log *log.Logger) error {
 		return errors.Wrap(err, "generating config for output")
 	}
 	log.Printf("main: Config:\n%v\n", out)
+
+	// =========================================================================
+	// Commands
+
+	gqlConfig := data.GraphQLConfig{
+		URL:            cfg.Dgraph.URL,
+		AuthHeaderName: cfg.Dgraph.AuthHeaderName,
+		AuthToken:      cfg.Dgraph.AuthToken,
+	}
+
+	switch cfg.Args.Num(0) {
+	case "schema":
+		if err := commands.Schema(gqlConfig); err != nil {
+			return errors.Wrap(err, "updating schema")
+		}
+	}
 
 	return nil
 }
