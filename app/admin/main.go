@@ -18,9 +18,9 @@ func main() {
 	log := log.New(os.Stdout, "ADMIN : ", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
 
 	if err := run(log); err != nil {
-		// if errors.Cause(err) != commands.ErrHelp {
-		// 	log.Printf("error: %s", err)
-		// }
+		if errors.Cause(err) != commands.ErrHelp {
+			log.Printf("error: %s", err)
+		}
 		os.Exit(1)
 	}
 }

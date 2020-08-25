@@ -11,23 +11,6 @@ mutation {
 	}
 }
 
-{
-  "data": {
-    "addCity": {
-      "city": [
-        {
-          "id": "0x5",
-        }
-      ],
-    }
-  },
-  "extensions": {
-    "touched_uids": 5
-  }
-}
-
-=====================================================================
-
 mutation {
 	updateCity(input: {
     filter: {id: ["0x3"] }
@@ -78,17 +61,54 @@ query {
   }
 }
 
+mutation {
+  updateCity(input: {
+    filter: {
+      id: ["0x3"]
+    }
+    set: {
+      weather: {
+        id: "0x4"
+      }
+    }
+  }
+  ) {
+		city {
+			id
+      weather {
+        id
+        description
+        city_name
+        temp
+        temp_min
+        temp_max
+      }
+		}
+	}
+}
+
+query {
+	getWeather(id: "0x4" )
+	{
+    id
+    description
+    city_name
+    temp
+    temp_min
+    temp_max
+  }
+}
+
 // ==================================================
 
-
+directive @search(by: [DgraphIndex!]) on FIELD_DEFINITION
+directive @withSubscription on OBJECT | INTERFACE
+directive @remote on OBJECT | INTERFACE
 directive @dgraph(
   type: String
   pred: String
 ) on OBJECT | INTERFACE | FIELD_DEFINITION
-directive @custom(http: CustomHTTP, dql: String) on FIELD_DEFINITION
-directive @cascade on FIELD
-directive @hasInverse(field: String!) on FIELD_DEFINITION
-directive @withSubscription on OBJECT | INTERFACE
+directive @id on FIELD_DEFINITION
 directive @secret(field: String!, pred: String) on OBJECT | INTERFACE
 directive @auth(
   query: AuthRule
@@ -96,17 +116,37 @@ directive @auth(
   update: AuthRule
   delete: AuthRule
 ) on OBJECT
-directive @remote on OBJECT | INTERFACE
-directive @search(by: [DgraphIndex!]) on FIELD_DEFINITION
-directive @id on FIELD_DEFINITION
+directive @custom(http: CustomHTTP, dql: String) on FIELD_DEFINITION
+directive @cascade on FIELD
+directive @hasInverse(field: String!) on FIELD_DEFINITION
 input AddCityInput {
   name: String!
   lat: Float!
   lng: Float!
+  weather: WeatherRef
 }
 
 type AddCityPayload {
   city(filter: CityFilter, order: CityOrder, first: Int, offset: Int): [City]
+  numUids: Int
+}
+
+input AddWeatherInput {
+  city_name: String!
+  description: String
+  pressure: Int
+  temp: Float
+  temp_min: Float
+  temp_max: Float
+}
+
+type AddWeatherPayload {
+  weather(
+    filter: WeatherFilter
+    order: WeatherOrder
+    first: Int
+    offset: Int
+  ): [Weather]
   numUids: Int
 }
 
@@ -122,6 +162,7 @@ type City {
   name: String!
   lat: Float!
   lng: Float!
+  weather(filter: WeatherFilter): Weather
 }
 
 input CityFilter {
@@ -137,6 +178,7 @@ enum CityHasFilter {
   name
   lat
   lng
+  weather
 }
 
 input CityOrder {
@@ -155,6 +197,7 @@ input CityPatch {
   name: String
   lat: Float
   lng: Float
+  weather: WeatherRef
 }
 
 input CityRef {
@@ -162,6 +205,7 @@ input CityRef {
   name: String
   lat: Float
   lng: Float
+  weather: WeatherRef
 }
 
 input CustomHTTP {
@@ -188,6 +232,17 @@ input DateTimeFilter {
 
 type DeleteCityPayload {
   city(filter: CityFilter, order: CityOrder, first: Int, offset: Int): [City]
+  msg: String
+  numUids: Int
+}
+
+type DeleteWeatherPayload {
+  weather(
+    filter: WeatherFilter
+    order: WeatherOrder
+    first: Int
+    offset: Int
+  ): [Weather]
   msg: String
   numUids: Int
 }
@@ -252,6 +307,9 @@ type Mutation {
   addCity(input: [AddCityInput!]!): AddCityPayload
   updateCity(input: UpdateCityInput!): UpdateCityPayload
   deleteCity(filter: CityFilter!): DeleteCityPayload
+  addWeather(input: [AddWeatherInput!]!): AddWeatherPayload
+  updateWeather(input: UpdateWeatherInput!): UpdateWeatherPayload
+  deleteWeather(filter: WeatherFilter!): DeleteWeatherPayload
 }
 
 type Query {
@@ -262,6 +320,13 @@ type Query {
     first: Int
     offset: Int
   ): [City]
+  getWeather(id: ID!): Weather
+  queryWeather(
+    filter: WeatherFilter
+    order: WeatherOrder
+    first: Int
+    offset: Int
+  ): [Weather]
 }
 
 input StringExactFilter {
@@ -301,3 +366,79 @@ type UpdateCityPayload {
   numUids: Int
 }
 
+input UpdateWeatherInput {
+  filter: WeatherFilter!
+  set: WeatherPatch
+  remove: WeatherPatch
+}
+
+type UpdateWeatherPayload {
+  weather(
+    filter: WeatherFilter
+    order: WeatherOrder
+    first: Int
+    offset: Int
+  ): [Weather]
+  numUids: Int
+}
+
+type Weather {
+  id: ID!
+  city_name: String!
+  description: String
+  pressure: Int
+  temp: Float
+  temp_min: Float
+  temp_max: Float
+}
+
+input WeatherFilter {
+  id: [ID!]
+  has: WeatherHasFilter
+  and: WeatherFilter
+  or: WeatherFilter
+  not: WeatherFilter
+}
+
+enum WeatherHasFilter {
+  city_name
+  description
+  pressure
+  temp
+  temp_min
+  temp_max
+}
+
+input WeatherOrder {
+  asc: WeatherOrderable
+  desc: WeatherOrderable
+  then: WeatherOrder
+}
+
+enum WeatherOrderable {
+  city_name
+  description
+  pressure
+  temp
+  temp_min
+  temp_max
+}
+
+input WeatherPatch {
+  city_name: String
+  description: String
+  pressure: Int
+  temp: Float
+  temp_min: Float
+  temp_max: Float
+}
+
+input WeatherRef {
+  id: ID
+  city_name: String
+  description: String
+  pressure: Int
+  temp: Float
+  temp_min: Float
+  temp_max: Float
+}
