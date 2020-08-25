@@ -5,15 +5,28 @@ mutation {
     lng:-80.1918
 	}])
 	{
-    city {
-      id
-      name
-      lat
-      lng
+		city {
+			id
+		}
+	}
+}
+
+{
+  "data": {
+    "addCity": {
+      "city": [
+        {
+          "id": "0x5",
+        }
+      ],
     }
-    numUids
+  },
+  "extensions": {
+    "touched_uids": 5
   }
 }
+
+=====================================================================
 
 mutation {
 	updateCity(input: {

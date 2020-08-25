@@ -90,6 +90,10 @@ func run(log *log.Logger) error {
 		if err := commands.Schema(gqlConfig); err != nil {
 			return errors.Wrap(err, "updating schema")
 		}
+	case "seed":
+		if err := commands.Seed(log, gqlConfig); err != nil {
+			return errors.Wrap(err, "seeding database")
+		}
 	}
 
 	return nil

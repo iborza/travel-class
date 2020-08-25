@@ -9,6 +9,6 @@ down:
 schema:
 	go run app/admin/main.go schema
 
-seed: schema
+seed:
 	go run app/admin/main.go seed
 
