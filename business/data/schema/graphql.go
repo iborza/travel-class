@@ -6,6 +6,16 @@ var _document = `type City {
 	lat: Float!
 	lng: Float!
 	weather: Weather
+	places: [Place] @hasInverse(field: city)
+}
+
+type Place {
+	id: ID!
+	address: String
+	avg_user_rating: Float
+	category: String @search(by: [exact])
+	city: City!
+	name: String! @search(by: [exact])
 }
 
 type Weather {

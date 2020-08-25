@@ -150,35 +150,71 @@ mutation {
 	}
 }
 
+mutation {
+	addPlace(input: [{
+    address: "123 mocking bird"
+    avg_user_rating: 5.0
+    category: "bar"
+    city: {
+      id: "0x2"
+    }
+    name: "bill's rockin bar"
+	}])
+	{
+		place {
+			id
+		}
+	}
+}
+
 // ==================================================
 
 directive @search(by: [DgraphIndex!]) on FIELD_DEFINITION
-directive @withSubscription on OBJECT | INTERFACE
-directive @remote on OBJECT | INTERFACE
 directive @dgraph(
   type: String
   pred: String
 ) on OBJECT | INTERFACE | FIELD_DEFINITION
 directive @id on FIELD_DEFINITION
 directive @secret(field: String!, pred: String) on OBJECT | INTERFACE
+directive @hasInverse(field: String!) on FIELD_DEFINITION
+directive @custom(http: CustomHTTP, dql: String) on FIELD_DEFINITION
+directive @cascade on FIELD
+directive @withSubscription on OBJECT | INTERFACE
 directive @auth(
   query: AuthRule
   add: AuthRule
   update: AuthRule
   delete: AuthRule
 ) on OBJECT
-directive @custom(http: CustomHTTP, dql: String) on FIELD_DEFINITION
-directive @cascade on FIELD
-directive @hasInverse(field: String!) on FIELD_DEFINITION
+directive @remote on OBJECT | INTERFACE
 input AddCityInput {
   name: String!
   lat: Float!
   lng: Float!
   weather: WeatherRef
+  places: [PlaceRef]
 }
 
 type AddCityPayload {
   city(filter: CityFilter, order: CityOrder, first: Int, offset: Int): [City]
+  numUids: Int
+}
+
+input AddPlaceInput {
+  address: String
+  avg_user_rating: Float
+  category: String
+  city: CityRef!
+  name: String!
+}
+
+type AddPlacePayload {
+  place(
+    filter: PlaceFilter
+    order: PlaceOrder
+    first: Int
+    offset: Int
+  ): [Place]
   numUids: Int
 }
 
@@ -214,6 +250,12 @@ type City {
   lat: Float!
   lng: Float!
   weather(filter: WeatherFilter): Weather
+  places(
+    filter: PlaceFilter
+    order: PlaceOrder
+    first: Int
+    offset: Int
+  ): [Place]
 }
 
 input CityFilter {
@@ -230,6 +272,7 @@ enum CityHasFilter {
   lat
   lng
   weather
+  places
 }
 
 input CityOrder {
@@ -249,6 +292,7 @@ input CityPatch {
   lat: Float
   lng: Float
   weather: WeatherRef
+  places: [PlaceRef]
 }
 
 input CityRef {
@@ -257,6 +301,7 @@ input CityRef {
   lat: Float
   lng: Float
   weather: WeatherRef
+  places: [PlaceRef]
 }
 
 input CustomHTTP {
@@ -283,6 +328,17 @@ input DateTimeFilter {
 
 type DeleteCityPayload {
   city(filter: CityFilter, order: CityOrder, first: Int, offset: Int): [City]
+  msg: String
+  numUids: Int
+}
+
+type DeletePlacePayload {
+  place(
+    filter: PlaceFilter
+    order: PlaceOrder
+    first: Int
+    offset: Int
+  ): [Place]
   msg: String
   numUids: Int
 }
@@ -358,9 +414,69 @@ type Mutation {
   addCity(input: [AddCityInput!]!): AddCityPayload
   updateCity(input: UpdateCityInput!): UpdateCityPayload
   deleteCity(filter: CityFilter!): DeleteCityPayload
+  addPlace(input: [AddPlaceInput!]!): AddPlacePayload
+  updatePlace(input: UpdatePlaceInput!): UpdatePlacePayload
+  deletePlace(filter: PlaceFilter!): DeletePlacePayload
   addWeather(input: [AddWeatherInput!]!): AddWeatherPayload
   updateWeather(input: UpdateWeatherInput!): UpdateWeatherPayload
   deleteWeather(filter: WeatherFilter!): DeleteWeatherPayload
+}
+
+type Place {
+  id: ID!
+  address: String
+  avg_user_rating: Float
+  category: String
+  city(filter: CityFilter): City!
+  name: String!
+}
+
+input PlaceFilter {
+  id: [ID!]
+  category: StringExactFilter
+  name: StringExactFilter
+  has: PlaceHasFilter
+  and: PlaceFilter
+  or: PlaceFilter
+  not: PlaceFilter
+}
+
+enum PlaceHasFilter {
+  address
+  avg_user_rating
+  category
+  city
+  name
+}
+
+input PlaceOrder {
+  asc: PlaceOrderable
+  desc: PlaceOrderable
+  then: PlaceOrder
+}
+
+enum PlaceOrderable {
+  address
+  avg_user_rating
+  category
+  name
+}
+
+input PlacePatch {
+  address: String
+  avg_user_rating: Float
+  category: String
+  city: CityRef
+  name: String
+}
+
+input PlaceRef {
+  id: ID
+  address: String
+  avg_user_rating: Float
+  category: String
+  city: CityRef
+  name: String
 }
 
 type Query {
@@ -371,6 +487,13 @@ type Query {
     first: Int
     offset: Int
   ): [City]
+  getPlace(id: ID!): Place
+  queryPlace(
+    filter: PlaceFilter
+    order: PlaceOrder
+    first: Int
+    offset: Int
+  ): [Place]
   getWeather(id: ID!): Weather
   queryWeather(
     filter: WeatherFilter
@@ -414,6 +537,22 @@ input UpdateCityInput {
 
 type UpdateCityPayload {
   city(filter: CityFilter, order: CityOrder, first: Int, offset: Int): [City]
+  numUids: Int
+}
+
+input UpdatePlaceInput {
+  filter: PlaceFilter!
+  set: PlacePatch
+  remove: PlacePatch
+}
+
+type UpdatePlacePayload {
+  place(
+    filter: PlaceFilter
+    order: PlaceOrder
+    first: Int
+    offset: Int
+  ): [Place]
   numUids: Int
 }
 
