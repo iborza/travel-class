@@ -99,6 +99,57 @@ query {
   }
 }
 
+mutation {
+  deleteWeather(filter: {
+      id: ["0x4"]
+  }) {
+    weather {
+      id
+		}
+    msg
+	}
+}
+
+mutation {
+	addWeather(input: [{
+		 city_name: "miami"
+      description: "desc"
+      pressure: 1034
+      temp: 87.9
+      temp_min: 67.9
+      temp_max: 99.6
+	}])
+	{
+		weather {
+			id
+		}
+	}
+}
+
+mutation {
+	addCity(input: [{
+		name: "miami"
+    lat: 25.7617
+    lng:-80.1918
+    weather: {
+      city_name: "miami"
+      description: "desc"
+      pressure: 1034
+      temp: 87.9
+      temp_min: 67.9
+      temp_max: 99.6
+    }
+	}])
+	{
+		city {
+			id
+      weather {
+        id
+      }
+		}
+	}
+}
+
 // ==================================================
 
 directive @search(by: [DgraphIndex!]) on FIELD_DEFINITION

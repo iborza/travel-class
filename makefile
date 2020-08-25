@@ -6,6 +6,9 @@ up:
 down:
 	docker-compose -f zarf/compose/compose.yaml down --remove-orphans
 
+logs:
+	docker-compose -f zarf/compose/compose.yaml logs -f
+
 schema:
 	go run app/admin/main.go schema
 

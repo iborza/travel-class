@@ -9,6 +9,7 @@ import (
 	"github.com/dgraph-io/travel/business/data"
 	"github.com/dgraph-io/travel/business/data/city"
 	"github.com/dgraph-io/travel/business/data/schema"
+	"github.com/dgraph-io/travel/business/data/weather"
 	"github.com/pkg/errors"
 )
 
@@ -45,6 +46,20 @@ func Seed(log *log.Logger, gqlConfig data.GraphQLConfig) error {
 	}
 
 	cty, err := city.Add(ctx, gql, cty)
+	if err != nil {
+		return err
+	}
+
+	wth := weather.Weather{
+		CityName: "bill",
+		Desc:     "just some weather",
+		Temp:     98.7,
+		MaxTemp:  99.4,
+		MinTemp:  87.3,
+		Pressure: 1098,
+	}
+
+	wth, err = weather.Replace(ctx, gql, cty.ID, wth)
 	if err != nil {
 		return err
 	}
