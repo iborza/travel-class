@@ -46,13 +46,13 @@ func Seed(log *log.Logger, gqlConfig data.GraphQLConfig) error {
 	}
 
 	cty, err := city.Add(ctx, gql, cty)
-	if err != nil {
+	if err != nil && err != city.ErrExists {
 		return err
 	}
 
 	wth := weather.Weather{
 		CityName: "bill",
-		Desc:     "just some weather",
+		Desc:     "just some weather in Bill",
 		Temp:     98.7,
 		MaxTemp:  99.4,
 		MinTemp:  87.3,
