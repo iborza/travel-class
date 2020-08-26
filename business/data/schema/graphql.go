@@ -70,5 +70,21 @@ type Weather {
 	temp_max: Float
 }
 
+type UploadFeedResponse @remote {
+	country_code: String
+	city_name: String
+	lat: Float
+	lng: Float
+	message: String
+}
+
+type Query {
+	uploadFeed(countryCode: String!, cityName: String!, lat: Float!, lng: Float!): UploadFeedResponse @custom(http:{
+		url: "http://service:3000/upload",
+		method: "POST",
+		body: "{countrycode: $countryCode, cityname: $cityName, lat: $lat, lng: $lng}"
+	})
+}
+
 # Dgraph.Authorization {"header":"X-Travel-Auth", "namespace":"Auth", "algo":"RS256", "verificationkey":"-----BEGIN RSA PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnZ/BW/tuLr0uxZFw1Q5m\nP1JpIksU46o+kIaqIXZjSAduma18m+oSgd1L19Fs9otAjfAlkyU8HF1hJNj/PVv8\nMY72vhIWv60xBB4caXuLmflAiJEtvxHfw3WtVR9npQqEowcwrsf7MSSfdHwM4S+F\nbMmcl/mE9c7DUrYJBUgu1IbdI7vrEoPE65GFafjZQHkPLUX8OaRXOt4rkT6HfYv+\nXqaCs6Ie+dt6xL5HiQpO90/89CAJhi2q8AXvhfxqCVVfLxxd3jNJVq2olkCOLJRE\nuJ29Bb460yKOAiDigEUobUpmvT6ggUZNrX71yP0GZxQFBhq9j1IRgPVg4CDA0Pw5\nFQIDAQAB\n-----END RSA PUBLIC KEY-----"}
 `

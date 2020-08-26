@@ -169,24 +169,24 @@ mutation {
 
 // ==================================================
 
-directive @search(by: [DgraphIndex!]) on FIELD_DEFINITION
+directive @dgraph(
+  type: String
+  pred: String
+) on OBJECT | INTERFACE | FIELD_DEFINITION
 directive @id on FIELD_DEFINITION
 directive @withSubscription on OBJECT | INTERFACE
-directive @remote on OBJECT | INTERFACE
-directive @secret(field: String!, pred: String) on OBJECT | INTERFACE
 directive @auth(
   query: AuthRule
   add: AuthRule
   update: AuthRule
   delete: AuthRule
 ) on OBJECT
+directive @remote on OBJECT | INTERFACE
+directive @hasInverse(field: String!) on FIELD_DEFINITION
+directive @search(by: [DgraphIndex!]) on FIELD_DEFINITION
 directive @custom(http: CustomHTTP, dql: String) on FIELD_DEFINITION
 directive @cascade on FIELD
-directive @hasInverse(field: String!) on FIELD_DEFINITION
-directive @dgraph(
-  type: String
-  pred: String
-) on OBJECT | INTERFACE | FIELD_DEFINITION
+directive @secret(field: String!, pred: String) on OBJECT | INTERFACE
 input AddCityInput {
   name: String!
   lat: Float!
@@ -503,6 +503,12 @@ input PlaceRef {
 }
 
 type Query {
+  uploadFeed(
+    countryCode: String!
+    cityName: String!
+    lat: Float!
+    lng: Float!
+  ): UploadFeedResponse
   getUser(id: ID!): User
   queryUser(
     filter: UserFilter
@@ -618,6 +624,14 @@ type UpdateWeatherPayload {
     offset: Int
   ): [Weather]
   numUids: Int
+}
+
+type UploadFeedResponse {
+  country_code: String
+  city_name: String
+  lat: Float
+  lng: Float
+  message: String
 }
 
 type User {

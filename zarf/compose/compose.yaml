@@ -23,3 +23,13 @@ services:
     depends_on:
       - dgraph-zero
     command: dgraph alpha --vmodule=server=3
+
+  service:
+    container_name: service
+    networks:
+      - shared-network
+    image: class-service-amd64:1.0
+    ports:
+      - 3000:3000 # API
+    depends_on:
+      - dgraph-alpha
