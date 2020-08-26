@@ -170,23 +170,23 @@ mutation {
 // ==================================================
 
 directive @search(by: [DgraphIndex!]) on FIELD_DEFINITION
-directive @dgraph(
-  type: String
-  pred: String
-) on OBJECT | INTERFACE | FIELD_DEFINITION
 directive @id on FIELD_DEFINITION
-directive @secret(field: String!, pred: String) on OBJECT | INTERFACE
-directive @hasInverse(field: String!) on FIELD_DEFINITION
-directive @custom(http: CustomHTTP, dql: String) on FIELD_DEFINITION
-directive @cascade on FIELD
 directive @withSubscription on OBJECT | INTERFACE
+directive @remote on OBJECT | INTERFACE
+directive @secret(field: String!, pred: String) on OBJECT | INTERFACE
 directive @auth(
   query: AuthRule
   add: AuthRule
   update: AuthRule
   delete: AuthRule
 ) on OBJECT
-directive @remote on OBJECT | INTERFACE
+directive @custom(http: CustomHTTP, dql: String) on FIELD_DEFINITION
+directive @cascade on FIELD
+directive @hasInverse(field: String!) on FIELD_DEFINITION
+directive @dgraph(
+  type: String
+  pred: String
+) on OBJECT | INTERFACE | FIELD_DEFINITION
 input AddCityInput {
   name: String!
   lat: Float!
@@ -215,6 +215,20 @@ type AddPlacePayload {
     first: Int
     offset: Int
   ): [Place]
+  numUids: Int
+}
+
+input AddUserInput {
+  email: String!
+  name: String!
+  role: Role!
+  password_hash: String!
+  date_created: DateTime!
+  date_updated: DateTime!
+}
+
+type AddUserPayload {
+  user(filter: UserFilter, order: UserOrder, first: Int, offset: Int): [User]
   numUids: Int
 }
 
@@ -343,6 +357,12 @@ type DeletePlacePayload {
   numUids: Int
 }
 
+type DeleteUserPayload {
+  user(filter: UserFilter, order: UserOrder, first: Int, offset: Int): [User]
+  msg: String
+  numUids: Int
+}
+
 type DeleteWeatherPayload {
   weather(
     filter: WeatherFilter
@@ -411,6 +431,9 @@ enum Mode {
 }
 
 type Mutation {
+  addUser(input: [AddUserInput!]!): AddUserPayload
+  updateUser(input: UpdateUserInput!): UpdateUserPayload
+  deleteUser(filter: UserFilter!): DeleteUserPayload
   addCity(input: [AddCityInput!]!): AddCityPayload
   updateCity(input: UpdateCityInput!): UpdateCityPayload
   deleteCity(filter: CityFilter!): DeleteCityPayload
@@ -480,6 +503,13 @@ input PlaceRef {
 }
 
 type Query {
+  getUser(id: ID!): User
+  queryUser(
+    filter: UserFilter
+    order: UserOrder
+    first: Int
+    offset: Int
+  ): [User]
   getCity(id: ID!): City
   queryCity(
     filter: CityFilter
@@ -501,6 +531,13 @@ type Query {
     first: Int
     offset: Int
   ): [Weather]
+}
+
+enum Role {
+  ADMIN
+  EMAIL
+  MUTATE
+  QUERY
 }
 
 input StringExactFilter {
@@ -556,6 +593,17 @@ type UpdatePlacePayload {
   numUids: Int
 }
 
+input UpdateUserInput {
+  filter: UserFilter!
+  set: UserPatch
+  remove: UserPatch
+}
+
+type UpdateUserPayload {
+  user(filter: UserFilter, order: UserOrder, first: Int, offset: Int): [User]
+  numUids: Int
+}
+
 input UpdateWeatherInput {
   filter: WeatherFilter!
   set: WeatherPatch
@@ -570,6 +618,67 @@ type UpdateWeatherPayload {
     offset: Int
   ): [Weather]
   numUids: Int
+}
+
+type User {
+  id: ID!
+  email: String!
+  name: String!
+  role: Role!
+  password_hash: String!
+  date_created: DateTime!
+  date_updated: DateTime!
+}
+
+input UserFilter {
+  id: [ID!]
+  email: StringExactFilter
+  has: UserHasFilter
+  and: UserFilter
+  or: UserFilter
+  not: UserFilter
+}
+
+enum UserHasFilter {
+  email
+  name
+  role
+  password_hash
+  date_created
+  date_updated
+}
+
+input UserOrder {
+  asc: UserOrderable
+  desc: UserOrderable
+  then: UserOrder
+}
+
+enum UserOrderable {
+  email
+  name
+  password_hash
+  date_created
+  date_updated
+}
+
+input UserPatch {
+  email: String
+  name: String
+  role: Role
+  password_hash: String
+  date_created: DateTime
+  date_updated: DateTime
+}
+
+input UserRef {
+  id: ID
+  email: String
+  name: String
+  role: Role
+  password_hash: String
+  date_created: DateTime
+  date_updated: DateTime
 }
 
 type Weather {

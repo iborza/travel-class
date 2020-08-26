@@ -94,6 +94,17 @@ func run(log *log.Logger) error {
 		if err := commands.Seed(log, gqlConfig); err != nil {
 			return errors.Wrap(err, "seeding database")
 		}
+	case "adduser":
+		newUser := user.NewUser{
+			Name:     cfg.Args.Num(1),
+			Email:    cfg.Args.Num(2),
+			Password: cfg.Args.Num(3),
+			Role:     cfg.Args.Num(4),
+		}
+
+		if err := commands.AddUser(gqlConfig, newUser); err != nil {
+			return errors.Wrap(err, "adding user")
+		}
 	}
 
 	return nil
