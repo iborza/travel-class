@@ -8,6 +8,7 @@ import (
 	"github.com/ardanlabs/conf"
 	"github.com/dgraph-io/travel/app/admin/commands"
 	"github.com/dgraph-io/travel/business/data"
+	"github.com/dgraph-io/travel/business/data/user"
 	"github.com/pkg/errors"
 )
 
@@ -87,6 +88,7 @@ func run(log *log.Logger) error {
 
 	switch cfg.Args.Num(0) {
 	case "schema":
+		log.Println("RUNNING SCHEMA")
 		if err := commands.Schema(gqlConfig); err != nil {
 			return errors.Wrap(err, "updating schema")
 		}
